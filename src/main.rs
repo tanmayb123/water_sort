@@ -1,13 +1,8 @@
 mod puzzle_state;
 mod puzzle_state_neighbour_iterator;
-mod puzzle_state_heuristic_calculator;
-mod state_heuristic_pair;
 mod solvers;
 
 use std::collections::{HashMap, HashSet};
-
-use std::hash::{Hash, Hasher};
-use std::collections::hash_map::DefaultHasher;
 
 use crate::puzzle_state::PuzzleState;
 use crate::solvers::recursive_bfs;

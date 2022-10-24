@@ -153,23 +153,6 @@ impl PuzzleState {
         self.containers.len()
     }
 
-    pub fn get_container<'a>(&'a self, container_idx: usize) -> &'a [BlockState; CONTAINER_SIZE] {
-        &self.containers[container_idx]
-    }
-
-    pub fn print(&self) {
-        for container in &self.containers {
-            for block in container {
-                match block {
-                    BlockState::Empty => print!("."),
-                    BlockState::KnownColor(color) => print!("{}", color),
-                }
-                print!(" ");
-            }
-            println!();
-        }
-    }
-
     fn hash_container(container: &[BlockState; CONTAINER_SIZE]) -> u64 {
         let mut hash = 0;
         for block in container {
