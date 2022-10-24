@@ -47,15 +47,6 @@ fn construct_state_from_colors(colors: Vec<Vec<&str>>) -> PuzzleState {
     state
 }
 
-fn my_hash<T>(obj: T) -> u64
-where
-    T: Hash,
-{
-    let mut hasher = DefaultHasher::new();
-    obj.hash(&mut hasher);
-    hasher.finish()
-}
-
 fn main() {
     let state = {
         construct_state_from_colors(vec![
@@ -76,45 +67,8 @@ fn main() {
         ])
     };
 
-/*
-    state1.execute_move(0, 13);
-    state1.execute_move(1, 13);
-
-    let state2 = {
-        construct_state_from_colors(vec![
-            vec!["LG", "OR", "YE"],
-            vec!["DG", "YE", "GR"],
-            vec!["DB", "RE", "LG", "PU"],
-            vec!["GY", "RE", "LB", "YE"],
-            vec!["YE", "DB", "PI", "DG"],
-            vec!["GR", "BR", "DG", "BR"],
-            vec!["RE", "PU", "DB", "BR"],
-            vec!["BR", "DB", "PI", "PU"],
-            vec!["GY", "LG", "PI", "GY"],
-            vec!["LB", "GR", "LG", "OR"],
-            vec!["RE", "PU", "GY", "DG"],
-            vec!["OR", "GR", "OR", "PI"],
-            vec![],
-            vec!["LB", "LB"],
-        ])
-    };
-
-    state1.print();
-    println!();
-    state2.print();
-
-    let mut m = HashMap::new();
-    m.insert(state1, 1);
-
-    let k = m.contains_key(&state2);
-    println!("{}", k);
-*/
-
-    //state.print();
-
-    let res = recursive_bfs(state);
-    println!("Solution: {:?}", res);
-    //for item in res {
-    //    println!("{:?}", item);
-    //}
+    let res = recursive_bfs(state).unwrap();
+    for item in res {
+        println!("{:?}", item);
+    }
 }
