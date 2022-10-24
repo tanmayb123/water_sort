@@ -43,30 +43,47 @@ pub fn dfs(state: PuzzleState) -> Option<Vec<String>> {
     }
 }
 
-pub fn bfs(state: PuzzleState) -> bool {
-    let mut to_explore = VecDeque::new();
-    let mut explored = HashSet::new();
-
-    to_explore.push_back(state);
-
-    while let Some(state) = to_explore.pop_front() {
-        if explored.contains(&state) {
-            continue;
+pub fn recursive_bfs(state: PuzzleState) -> usize {
+    fn _recursive_bfs(state: PuzzleState, move_history: &mut VecDeque<String>, memos: &mut HashMap<PuzzleState, usize>) -> usize {
+        if let Some(depth) = memos.get(&state) {
+            return *depth;
         }
 
-        explored.insert(state.clone());
+        if move_history.len() > 100 {
+            return 0;
+        }
+
+        if state.solved() {
+            println!("Found solution at depth: {}", move_history.len());
+            memos.insert(state, 1);
+            return 1;
+        }
 
         let mut iterator = state.neighbour_iterator();
-        while let Some((neighbour, _)) = iterator.next() {
-            if neighbour.solved() {
-                return true;
+        let mut min_depth = usize::MAX;
+        let mut min_depth_move: Option<String> = None;
+        while let Some((neighbour, next_move)) = iterator.next() {
+            move_history.push_back(next_move);
+            let depth = _recursive_bfs(neighbour, move_history, memos) + 1;
+            let next_move = move_history.pop_back();
+            if depth < min_depth && depth != 1 {
+                min_depth = depth;
+                min_depth_move = next_move;
             }
-
-            to_explore.push_back(neighbour);
         }
 
-        print!("{}\r", explored.len());
+        if min_depth == usize::MAX {
+            memos.insert(state, 0);
+            return 0;
+        }
+
+        memos.insert(state, min_depth);
+
+        return min_depth;
     }
 
-    false
+    let mut memos = HashMap::new();
+    let mut move_history = VecDeque::new();
+    let depth = _recursive_bfs(state, &mut move_history, &mut memos);
+    depth
 }

@@ -38,7 +38,7 @@ impl<'a> PuzzleStateNeighbourIterator<'a> {
                 self.container_from_idx = from;
                 self.container_to_idx = to + 1;
 
-                return Some((new_state, format!("{} -> {}", from, to)));
+                return Some((new_state, format!("{} -> {}", from + 1, to + 1)));
             }
 
             self.container_to_idx = 0;

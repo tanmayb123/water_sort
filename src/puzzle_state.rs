@@ -1,3 +1,5 @@
+use std::hash::{Hash, Hasher};
+
 use crate::CONTAINER_SIZE;
 use crate::puzzle_state_neighbour_iterator::PuzzleStateNeighbourIterator;
 
@@ -8,15 +10,17 @@ pub enum BlockState {
     // TODO: UnknownColor,
 }
 
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[derive(Clone)]
 pub struct PuzzleState {
     containers: Vec<[BlockState; CONTAINER_SIZE]>,
+    //move_history: Vec<Option<usize>>,
 }
 
 impl PuzzleState {
     pub fn new(container_count: usize) -> Self {
         Self {
             containers: vec![[BlockState::Empty; CONTAINER_SIZE]; container_count],
+            //move_history: vec![None; container_count],
         }
     }
 
@@ -65,6 +69,12 @@ impl PuzzleState {
         let (to_state, _) = self.container_top_state(to);
         let to_full = self.container_bottom_empty_idx(to);
 
+        //if let Some(from_history) = self.move_history[from] {
+        //    if from_history == to {
+        //        //return false;
+        //    }
+        //}
+
         return
             !(to_full == None) &&
             from_state != BlockState::Empty &&
@@ -101,6 +111,17 @@ impl PuzzleState {
         for i in to_idx..to_idx + count {
             self.containers[to][i] = from_state.clone();
         }
+
+        /*
+        if let Some(from_last_move) = self.move_history[from] {
+            self.move_history[from_last_move] = None;
+        }
+        self.move_history[from] = Some(to);
+        if let Some(to_last_move) = self.move_history[to] {
+            self.move_history[to_last_move] = None;
+        }
+        self.move_history[to] = Some(from);
+        */
 
         true
     }
@@ -147,5 +168,45 @@ impl PuzzleState {
             }
             println!();
         }
+    }
+
+    fn hash_container(container: &[BlockState; CONTAINER_SIZE]) -> u64 {
+        let mut hash = 0;
+        for block in container {
+            let val = match block {
+                BlockState::Empty => 0,
+                BlockState::KnownColor(color) => *color as u64,
+            };
+            hash += val;
+            hash <<= 4;
+        }
+        hash
+    }
+
+    pub fn hashed_containers(&self) -> Vec<u64> {
+        self.containers
+            .iter()
+            .map(|x| Self::hash_container(x))
+            .collect()
+    }
+}
+
+impl PartialEq for PuzzleState {
+    fn eq(&self, other: &Self) -> bool {
+        let mut self_hashed = self.hashed_containers();
+        self_hashed.sort();
+        let mut other_hashed = other.hashed_containers();
+        other_hashed.sort();
+        self_hashed == other_hashed
+    }
+}
+
+impl Eq for PuzzleState {}
+
+impl Hash for PuzzleState {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let mut hashed = self.hashed_containers();
+        hashed.sort();
+        hashed.hash(state);
     }
 }
